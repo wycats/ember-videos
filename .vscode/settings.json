@@ -1,0 +1,7 @@
+{
+    "fountain.pdf.doubleSpaceBetweenScenes": true,
+    "fountain.pdf.numberSections": true,
+    "fountain.pdf.printProfile": "usletter",
+    "fountain.pdf.sceneNumbers": "both",
+    "editor.formatOnSave": true
+}

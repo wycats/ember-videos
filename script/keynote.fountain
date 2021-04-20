@@ -1,0 +1,1101 @@
+
+Title: A Framework for 10 Years
+Draft date: 4/12/2021
+Contact:
+    Yehuda Katz
+    4394 Lords Lane
+    Lake Oswego, OR 97035
+Copyright: © Yehuda Katz
+Credit: Written by Yehuda Katz
+Source: Based on the EmberConf 2021 Keynote
+
+# TEASER
+
+## SETUP
+
+.INTRO #1#
+
+YEHUDA
+Hello EmberConf 2021. This is the second Virtual EmberConf. Hopefully the last one. It really has been 10 years since we shipped Amber.js and then a week later renamed it to Ember.js. And when we started, we used to say Ember was going to be a framework for 10 years. Now we didn't have any idea what 10 years from 2011 was going to look like.  At the time Bower was really popular.
+
+YEHUDA
+ES modules haven't landed yet, transpilers were still a pipe dream... All we knew was that things were going to change a lot over the next 10 years and we knew that we wanted to build apps that could last for a while with our framework. And we also had lived through a lot of breaking changes in the past with other frameworks, and we also lived through a lot of apps that ended up doing rewrites for not very good reasons, and we really didn't like that. We really hated that. And we figured there must be other people who share our view that shipping apps is the most important thing. We should stop worrying about all this other stuff, and maybe we could build a community out of that.
+
+.SKYLIGHT #2#
+
+YEHUDA
+So, how did we do? Well my own app, Skylight, started on Ember before 1.0 and it's on Ember 3.25 today. And it's not just on Ember 3.25 because Ember's compatible. We migrated to native classes in 2019. We migrated to TypeScript in 2020, and you should definitely check out Krystan's talk about how we migrated to Ember ...  how we migrated to Typescript, and how you can use Typescript to become a more confident developer. In general, if you look at our codebase today, it really looks like an Ember 3.25 app which looks pretty modern.
+
+YEHUDA
+So here's an example: this is a component that was in the repository in 2014, which is the first commit with a README, and yeah, that really is what Ember used to look like. underscore_super, this.get, define property, all that stuff.
+
+YEHUDA
+And this is the same component today, minus some comments, and it really looks like a component that you could write in today, 2021. Uses nullish coalescing, uses TypeScript, and there's not really any good reason why we had to keep updating this component. It's just a feature flag component; it's quite small, but just because we kept upgrading Ember and just because people occasionally look at this, it got updated. And I think the really cool thing is that again, even though this is such a simple component, we even migrated to use named blocks when they became useful. So I think this is pretty good evidence that an app that started way back when, was able to use Ember to continuously ship features and eventually end up on something that looks really modern.
+
+.OTHER COMPANIES #3#
+
+YEHUDA
+But it's not just Skylight. It's not just because I work on Skylight that made that true. Heroku, Intercom, Square and Linkedin all started their apps on early versions of Ember, and they all kept shipping their features through all the things that happened over the intervening years.
+
+YEHUDA
+Intercom started using Ember in 2013 and Gavin loves showing this graph of what happened to their productivity. And they kept up with Ember over the years and the fact that they did that really powered their ability to keep that going. I really love that graph.
+
+YEHUDA
+And it's not just high profile companies; really small companies also got the benefits of this. This whole spectrum shows that our plan of building a framework that we could use to build apps for 10 years really did work.
+
+.SHIP OF THESEUS #4#
+
+YEHUDA
+When people compare Frameworks, they almost always evaluate Frameworks frozen in time, and they rarely examine a framework's philosophy for adapting to change. And they rarely ask, how applications should adapt to change. The truth is that a framework can only be understood by evaluating how it adapts to change.
+
+YEHUDA
+By the time we're done today, I hope that I will be able to convince you that Ember's approach to change is the reason that so many apps that started nearly a decade ago with Ember, are still going strong today. And if you take a look at those apps, they look like they were started yesterday. They look like they were started in 2021.
+
+# ACT ONE
+
+.2011 #5#
+
+YEHUDA
+Our story starts in 2011. At the time I was a web app developer who had a full-time job working on Rails 3, and I was a Core Contributor to jQuery.
+
+YEHUDA
+And you know, I learned a lot about open source from John Resig. He taught me my pin tweet. John's opinion about breaking changes was that they were bad, breaking changes disrupt the ecosystem. They kill momentum if people get left behind, then the benefit of going forward is slower because there's less people, plus you end up having to spend a ton of time supporting people who can't upgrade. And this is all true, but when jQuery started we did all this work to make mouse enter work, even though it wasn't supported on all browsers, but jQuery today still doesn't come with tap events and the plug-in model is based on manipulating global prototype... like what? and you might want to use Arrow functions? But oh well jQuery's API is based on this. And this stuff adds up.
+
+YEHUDA
+Rails on the other hand had a pretty different perspective. We cherish progress over stability. I worked on Rails 3. I had pretty big goals for rails 3, so I was pretty on board at first, but then I eventually realized that framing software development as a battle between progress and stability force us to make a bad choice.
+
+YEHUDA
+Of course, you would prefer to deal with regular breakage if the alternative is failing, but these aren't the only options.
+
+.THE TRUTH #6#
+
+YEHUDA
+The truth is that progress and stability are two sides of a coin and people force themselves into zero-sum thinking here. People get really annoyed at cruft in their code bases and it becomes really easy to come up with a rationalization for making a big break and you just have to get people whipped up for a little bit of time to make it happen.
+
+YEHUDA
+So you hear things like "we just have to rip the Band-Aid off!" At the moment, these decision sound reasonable. If you read the Python 3 blog post, it sounds perfectly reasonable, but here's the thing. Their perspective is on the extreme end of the spectrum. It's just that we have better language for talking about things that are on the extreme end of the spectrum then balance.
+
+.JAMIE ZAWINSKI #7#
+
+YEHUDA
+For as long as I can remember, I've been haunted by the unfinished work of Jamie Zielinski, one of the original founders of Mozilla. After a year without shipping, he gave up. For him shipping was the thing. But on his way out, he said it wasn't obvious to him that his goals were impossible.
+
+YEHUDA
+When he quit Mozilla, he left an open question. He left unfinished business.
+
+YEHUDA
+Was it possible to build an open source project owned by a community that prioritizes shipping continuously? I was unsatisfied with the answers. I had learned from jQuery and rails. To avoid disruption in jQuery had accepted stagnation as a fact of life, and to avoid stagnation, rails had accepted disruption as a fact of life. What this meant was that the status quo in open source was that you would get breaking changes every few years, and you'd end up rewriting your app every few years.
+
+YEHUDA
+Both disruption and stagnation are enemies of shipping. So if we want to find a solution for shipping continuously, we need to find a way to balance them.
+
+## AFTER RAILS
+
+.ADRIFT #8#
+
+YEHUDA
+After wrapping up rails, I found myself adrift. Dhh hated client-side JavaScript and the JavaScript community hated rails. I really wanted something better in JavaScript. But basically all I really knew about JavaScript at the time was that jQuery turned into spaghetti, once your app got big enough.
+
+YEHUDA
+I really wanted HTML and CSS to be central to the way I did client-side web development going forward. So I wrote handlebars a templating engine with an eye towards auto updating, but I didn't really have any idea how to do auto updating.
+
+.CHARLES #9#
+
+YEHUDA
+Luck was on my side. Charles Jolly had built the mobileme suite of web applications for Apple, and he was leaving Apple to invest in open client-side tooling.
+
+.TOM #10#
+
+YEHUDA
+Charles had a reactivity system and I had a templating engine. I was in. I joined his new company Strobe. Charles introduced me to Tom Dale. At the time Tom still worked on mobileme and we convince Tom to join our team. This is how I imagine it went down.
+
+.STROBE DIES #11#
+
+YEHUDA
+Charles taught me what he learned that Apple. Unfortunately Strobe ran out of money before we managed to ship our product, an HTML5 deployment platform
+
+## AFTER STROBE
+
+.A FRAMEWORK FOR TEN YEARS #12#
+
+YEHUDA
+When we were thinking about what a framework for 10 years meant in the early days, what we thought was that apps after 10 years should still look idiomatic for 10 years in the future. jQuery didn't pull that off and even though rails prioritized progress over stability, even rails didn't pull it off.
+
+YEHUDA
+If we were going to build a framework for 10 years, we needed to figure out how to roll in innovation on a regular schedule. A framework for ten years was an aspiration. What that meant is that shipping apps is the North Star.  Disruption and stagnation are enemies of shipping. So we needed a solution that minimize both of those things.
+
+.FIREFOX 3 #13#
+
+YEHUDA
+I want to give you a glimpse into what software looked like back then. We're going to take a look at the Firefox 3 release schedule, but this is pretty representative and reminds me a lot of other software projects. I worked on at the time. What you're looking at is a table that I got from the Firefox 3 planning Wiki.
+
+YEHUDA
+Let's check in in February. Whoops. Okay. Let's check it in again in May. Whoops. These tables are full of references to code freezes. So let's check in again in July. The beta date from the previous schedule. Nope. Didn't make it either. What about Milestone on scheduled for October? What are these question marks?
+
+YEHUDA
+Okay, I'll put us out of our misery and jump ahead to March 2008. Well, we got some betas going so that's great. And at this point it's kind of given up on trying to predict anything and the table is just a list of releases that already happened. They ultimately shipped in June 2008 over a year after the original plan.
+
+YEHUDA
+You could tell the system wasn't really working by how much people had to beg you to follow the rules.
+
+.THE 1.0 GOAL / CHROME #14#
+
+YEHUDA
+We eventually reached a point where we wanted to commit to stability. And so we announced the pre 1.0 to start fleshing out what that looked like. In the meantime Chrome had come out and in their opening blog post, they said "Something is wrong with the conventional wisdom."
+
+YEHUDA
+They said "shipping faster means higher quality." It was counterintuitive at the time to me at least but it was intriguing. The thing is it was aspirational. The thing that Chrome announce when they first shipped didn't work in the first year. There's a really good presentation by Anthony Leforge, Chrome's project manager at the time, that said basically that deadlines are bad.
+
+YEHUDA
+You don't want engineers to have to rush to avoid missing the train and when that happens releases get delayed anyway. So they announced a two-part solution. It's not just about changing the timeline, although that matters a lot. Just going faster stresses people out. So you would need some new rules.
+
+YEHUDA
+It comes down to two basic rules. Always iterate on the development branch and always make sure the development branch is ready to ship. This all looked great to us. It was finally a way of thinking about development that didn't introduce all these moments that trigger disruptions. We announced that we would follow the Chrome release model with a release every six weeks.
+
+.THE 1.0 PLAN #15#
+
+YEHUDA
+A week later, we announced the details of the plan. It looks a lot like the Chrome model. We wanted to make sure it was super easy for our users to follow. So we invested in illustrations and diagrams. Our initial plan included all the elements that Chrome and Firefox had identified as essential. We would develop Ember on the master branch. New features landed behind feature Flags, which avoids disruption. We would use overlapping channels named exactly like Chrome.
+
+YEHUDA
+We would Branch every six weeks, and importantly we formed a release team to handle the automation to ship a feature. All we have to do is change the feature and features that Json to enabled, and then the next time we reach the branch point, the feature would be enabled in beta, and eventually release. If I'm being honest Robert Jackson is really the secret sauce in our automation system.
+
+YEHUDA
+So our aspiration was, release every six weeks no deadlines for features, no code freezes. And if somebody feels pressure to ship a feature by a given date, there's always another train. So we had the first part of our evolution strategy, a strategy to evolve Ember predictably smoothly and with minimal disruption over 10 years.
+
+YEHUDA
+How are we going to add brand new features? Release channels.
+
+## AFTER 1.0
+
+.THE MODULES CHALLENGE #16#
+
+YEHUDA
+The next challenge came in our planning for 2014. Ember 1.0 had shipped with Globals. Not just Ember as a global but you stuck all of your application code into an application Global, and people really wanted modules. So this raised two new questions for our Evolution strategy. First, how should we roll out transitions from one medium to another? And second of all, how should we future-proof idioms? we could do some migrations from time to time, but we wanted to avoid having it happen all the time.
+
+YEHUDA
+The situation back then was a mess, forcing applications to pick module systems was a ticking time-bomb to costly migration, exactly what we were trying to avoid. Things were so bleak that people seriously considered UMD, this monstrosity, and the built will ecosystem wasn't in better shape. Bower was the package manager for the front end at the time. Gulp Grunt and brunch were popular, but they were primitive.
+
+YEHUDA
+This was a real challenge. We're not going to ask Ember users to wait it out until things settle down. It's not okay for Ember apps to be stuck on globals four years after everyone realizes it's a dead end, but on the other hand rolling your own is also not okay, it's not okay for Ember applications to have to manage their own transition off of Bower, off of Grunt, or off of whatever.
+
+YEHUDA
+But why couldn't we just say that this problem was out of scope? That was something that Ember was just not going to handle.
+
+YEHUDA
+The answer is simple: migrating off of Bower was going to be disruptive to applications, whether we caused it or not. We were looking for a solution that would allow Ember applications to use modules in 2014 without just kicking the can down the road to a costly migration in the future. This became something of a mantra to me. Narrowly focusing on SemVer is a recipe for bad decisions. SemVer is a means to avoid disruption. It is not an end in and of itself.
+
+YEHUDA
+Ultimately, we went with JavaScript modules. This was in 2013. But what we realized is that static analysis is really helpful for making adaptations over time, and static analysis was not easy with CommonJS and was not easy with AMD. But at the time nothing supported standard modules, they weren't standard yet.
+
+.EMBER CLI #17#
+
+YEHUDA
+If our goal was that everybody in the Ember Community would use modules as the way of writing code, we needed a standardized build system and the build system had to be part of our Evolution story. What it means for something to be part of our Evolution story is that it rides the train. What that would mean is that upgrading Ember updated your build tools. Evolving away from Bower or AMD could be managed through tooling updates. And because deprecations are an important migration tool, this allowed us to deprecate tooling changes, it allowed us to deprecate idioms. We have a solution for transitioning idioms over time Ember CLI, but what about future proofing? We want a solution to our problem that doesn't just recreate the same issue a year later.
+
+YEHUDA
+I don't mean that the solution is going to work forever, but rather that we put some thought into the solution and that it has some properties that minimize future disruption. This part of the Ember 2014 blog post is a really good summary of why this worked out. The highlighted sentence, the Lingua Franca module format in Embers's es6 modules is still true today, but the second one is barely recognizable. It's a fossil from a bygone era.
+
+.A PRINCIPLE TO LIVE BY #18#
+
+YEHUDA
+We ended up with a principle. When we're faced with a choice between today's popular solution and an equally expressive declarative solution, we pick the declarative solution. It's really hard to understand this principle from a single moment in time. At every moment in time, people say why not just go with the popular thing?
+
+YEHUDA
+But when you look at this from the perspective of multiple points in time over multiple years, the popular thing changes over time, that doesn't mean you should over abstract just to future-proof. The declarative solution has to basically be as good as the popular solution, if not better, and there has to be a meaningful explanation for why we expect change to happen. In the medium term modules were a pretty good fit for this philosophy.
+
+YEHUDA
+I'm not going to mark this as checked off because I think that there are other aspects of future-proofing other than declarative, but this is a pretty good lead and it actually served us pretty well over the years.
+
+YEHUDA
+But what about removing features?
+
+.REMOVING FEATURES #19#
+
+YEHUDA
+When we first started, we cargo culted  jQuery's defer Readiness Concept in a bunch of our APIs, but then promises happen, and so we needed a way to remove those APIs entirely, something we haven't done before. And so we designed our first deprecation system. Of course, you can only remove something in major versions. That's what SemVer's all about.
+
+YEHUDA
+But, you first have to deprecate features. This is something that SemVer doesn't actually say anything about. Additionally we said that features can only be deprecated in Ember if a replacement is already available and enabled. That would mean that by the time something is deprecated, it's always possible for people to move on to the next thing. Only the first of these bullets has anything to do with semver at all, but the point of semver is to minimize disruption and so our policy for removing features was focused on minimizing disruption. Not just SemVer. We lived through our first feature removal and added a new tactic to our Evolution strategy deprecation and SemVer.
+
+YEHUDA
+Ember's first templating engine was a variation of Handlebars's normal string based story, but that had some serious limitations. These solutions were reasonable compromises when we got started, but it was really time to do something about them.
+
+YEHUDA
+Here's the good news. Our evolution strategy that we've been building so far was a really good fit for what we were trying to accomplish here. First, the new HTMLBars compiler takes advantage of the declarative handlebars syntax to swap out the implementation entirely. Second of all, we had already created an ember-cli-htmlbars add-on to pre-compile templates. Because we did that, the ember-cli-htmlbars add-on can be updated as part of an Ember upgrade.
+
+YEHUDA
+Third of all, the work is definitely going to take more than six weeks. We can stage it using feature flags. We can roll it out to release channels when it's ready.
+(a beat)
+And actually it's a good thing we did that because we found the problem in 1.9 and we have to back it out. All we have to do is flip a flag in features.json and everything else happened automatically.
+
+YEHUDA
+I think it's worth taking a step back here and think about what we accomplished at first glance. It might look like all we did was work on process for a year, but all the process that we spend time on allowed us to do something pretty epic. We were able to take a string based templating engine which was aging out and replace it with a much better strategy without breaking changes.
+
+YEHUDA
+We were able to evolve Ember without disrupting our users. This is what it means to focus on stability without stagnation. Stability is the means by which we deliver new features and adapt to changes without disrupting users in a short amount of time. We were able to fully replace a string based templating engine with a dom-based templating engine and solve a whole bunch of real problems for our users without disruption, and that's a big deal.
+
+YEHUDA
+We got a lot done in the 1.x era. It was all compatible. So it's hard to remember if you around back then but some of these things were really important. I got a standing ovation for killing metamorph tags and bind attr twice, and if you look at the screen, there's just a whole bunch of stuff here that really matters.
+
+YEHUDA
+We made pretty massive changes. We added Ember CLI. We added HTMLBars. We landed modules and nevertheless people were sticking close to the latest release. We were successfully cranking out new features. We were successfully bringing in the best ideas from the ecosystem to Ember. We were successfully avoiding disruption.
+
+## AFTER EMBER-CLI
+
+.EMBERCONF 2014 #20#
+
+YEHUDA
+EmberConf 2014 was great at the time. Ryan Florence was in the Ember community and I gotta say on top of it just always being a morale boost for me to go to EmberConf and see all the awesome things everyone's doing, I always love our commitment to good illustrations and art. It always makes me feel good to go back to 2014 and see that our art was awesome even back then.
+
+.RFCS #21#
+
+YEHUDA
+We covered how to add features to Ember, how to migrate idioms, how to remove features, but what about designing Ember? If members of the core team has special status that means that you can get disrupted out of blue with no chance to weigh in. Also members of the core team don't hold a special monopoly on understanding. Active contributors can often be just as productive as core team members in discussions. Community members have special expertise that can come up when you least expect it, and honestly, sometimes people just want to weigh in on stuff. Letting people weigh in on stuff without having to be an expert in the code let's more people participate. We added an RFC process to Ember before this stage is processed. And here are the rules to add a new API that would require a feature flag, first you need an RFC. Removing an API that already landed on stable needs an RFC, and rfcs have to be merged before it's feature flag can be enabled. And those rules apply to the core team to contributors and anyone who wants to participate in Embers design.
+
+YEHUDA
+The solution for evolving the design of Embers apis and also a lot of other things including actual design like the website is going to be RFCs.
+
+.REACT TO THE FUTURE #22#
+
+YEHUDA
+But things don't stand still in 2011. Nobody was really doing client-side web Frameworks other than things like Dojo, SproutCore, and cappuccino, but by 2014 other Frameworks have become popular. Angular was hugely popular. Directives were like jQuery plugins, you could use as attributes. And React react wasn't yet the 800-pound gorilla we know and love had shaken up front end for good reason.
+
+# ACT TWO
+
+YEHUDA
+Basically, everyone had cargo culted two-way bindings from desktop frameworks. React showed that it's better to use functions to calculate values than just have data flying around. React also showed that diffing output is better than diffing data and of coarse grained updates can perform better than ultra fine grain updates when considering initial render and you really should consider initial render.
+
+YEHUDA
+All this made sense to us, but it wasn't going to be the last time there was a revelation in the front end and we didn't think that people should just change Frameworks every time someone comes up with a good idea. We got an additional sense of urgency when Ryan Florence who had since moved on to the react Community showed Ember being embarrassingly slow in his talk at react conf. He said Ember made him say no when he wanted to say yes to things. He couldn't ship so he switched to react and that makes sense. Our commitment to continuous shipping doesn't matter if you can't ship what you want. But here's the good news. We thought we've been building a system for doing Evolution and this what we've been building up to so Tom and I set to work on a rethink of our rendering engine.
+
+.GLIMMER #23#
+
+YEHUDA
+We got one way data flow. We got coarse-grained updating and the results were competitive, but there was a problem. We hacked and slashed to make it compatible with 1.12 and we couldn't wait to get rid of the code and we thought that's what breaking changes are for, right time to rip the Band-Aid off. We didn't actually say that I'm just foreshadowing.
+
+YEHUDA
+This is like the Titanic if you're from the Ember Community, you already know the end of the story and what's really strange is that we focused a lot on stability without stagnation during this period we had done a ton of work to define a process for evolving Ember smoothly and things were working really really well. Angular had recently said that because the web was changing a lot. We needed a full break and we didn't think that was true when we got the results of the 2015 Ember survey. It was confidence-inspiring.
+
+YEHUDA
+The plan was definitely working. We thought we had our bases covered. So we talked about it. We can do pretty phenomenal things like introduce a brand new rendering engine that brings your apps neck-and-neck and in some informal benchmarks actually faster than react. I think that's a really powerful thing. And I think we need more of that in the JavaScript Community.
+
+YEHUDA
+This is more foreshadowing.
+
+.1.13 #24#
+
+YEHUDA
+We thought we're going to make really good use of the strategies. We defined we have released channels. We have RFCs (we made a Road to Ember RFC). We have deprecation. We're definitely going to make sure we deprecate everything. We're going to remove we felt really good about all this but then it all went to hell you see we had made a critical mistake. We thought deprecations and rules are now part of our process so we can do a lot of them.
+
+YEHUDA
+After we landed 2.0 it started out really rocky. When we took a step back we realized that our technical strategy worked it let us stage features without disruption in 1X. And this is important by following our deprecation process. We were able to land new features in 1.13 that were needed for the transition.
+
+YEHUDA
+So in 1.13 you were able to do all the migrations that you needed to do to get to 2.0 2.0. Just remove the features that were no longer being used. So that all worked that all made sense, but we just did too many Breaking changes. It felt like a failure. The thing is evolution is not just about SemVer. SemVer helps us achieve the goal of shipping. If you use some were to violate this goal. It's not worth much.
+
+YEHUDA
+There was a bright spot a lot of apps did migrate. As best as we can tell the apps that were stuck on 1.13 were just a minority of Ember apps. And our careful strategy worked for a lot of people. What we did was a meaningfully better path and just breaking everything. And the add-on ecosystem was making the jump.
+
+YEHUDA
+And as always our community was amazing. Every time I go to EmberConf it makes me feel better. So I wasn't ready to just pack it in. But honestly the miscalibration really hurt. We figure out a lot in the 1.x era, but our first shot at breaking changes got a lot of people stuck. If our Evolution strategy was going to mean anything we needed to rescue as many of the 1.13 apps as possible.
+
+.TWO POINT X #25#
+
+YEHUDA
+The first order of business was making 2.x a nice landing place. When we took a look at the situation, we realized we only had one kind of deprecation. So the first thing we did was change the policy on deprecations to require that deprecations have a structured ID and a structured point in which they will be removed. And we also added an API so people could write tools for dealing with them one at a time.
+
+YEHUDA
+On top of that the 6-week release cycle wasn't working for everybody. Some people could migrate to a new version of Ember every six weeks. But some people just couldn't ship continuously if they had to upgrade every six weeks for various reasons. And if people couldn't upgrade then the entire strategy fell apart.
+
+.RELEASE REFINEMENTS #26#
+
+YEHUDA
+Let's take a look at the 1.0 series. It goes from Canary to Beta and then finally to stable and the same thing happens with 1.1, the same thing happens with 1.2 etc. We added a new channel called LTS. Let's take a look at the highlighted version. Again, we would add a new LTS version every four versions.
+
+YEHUDA
+All it really does is extend the cycle. The nice thing about this is that all of our automation works the same all of the mental model works the same. It's just another channel. The RFC was approved in October two months after Ember 2.0
+(a beat)
+So what did it do to our process?
+(a beat)
+First of all it change the release Channel rules to add one more Branch point.
+(a beat)
+And we also made a small tweak to intimate APIs.
+
+YEHUDA
+Despite 1.13, it felt like we were making progress. Our system was firming up. And then...
+
+.2016 SURVEY #27#
+
+YEHUDA
+The 2016 survey came in. We already knew about the problems, but we didn't know exactly how bad it was. It was pretty bad. Thirty-six percent of our users were stuck on 1.13. On the bright side, people who made it 2.X looked a lot like the 1.X survey from 2015.
+
+YEHUDA
+But the thing is we were supposed to find balance between stability and stagnation and to be honest 1.13 just really hurt. So it was time to restore balance.
+
+YEHUDA
+We thought let's try to do the stability without stagnation thing again. The process worked on 1.x. So let's do it.
+
+An army of Tomsters appears on the screen.
+
+YEHUDA
+Emberenos, Assemble.
+
+.TWO DOT X #28#
+
+YEHUDA
+So for the first half of those 2.x series, we basically repeated the process (plus improvements to the release process). We added sub teams based the Rust team's experience. We added a new mascot in Zoe. We landed LTS releases. We got some features done. And we did a whole bunch of quality-of-life improvements.
+
+YEHUDA
+And the thing is it worked. The community was able to build on a stable Foundation. Things were trending in the right direction, but we had one more problem.
+(long pause)
+We landed Glimmer in 1.13 to address a performance problem. But we created a new one.
+(a beat)
+Component creation performance had gotten really slow.
+(a beat)
+This not only affected 1.13, but it also affected all of 2.x.
+
+YEHUDA
+On top of all of that, Glimmer was better than the _old__ rendering engine, but it was still not _competitive__ with React. Especially for first render. Especially with a lot of components.
+(a beat)
+I had a lot of ideas for how to make things better, but we knew we couldn't break everything again.
+(long pause)
+We thought back to the 1.x series and we realized that we had done HTMLbars compatibly. The mistake that we made was breaking too many things all at once.
+
+.GLIMMER 2 #29#
+
+YEHUDA
+At this point Tom had moved on to LinkedIn. So I did the work with Godfrey.
+
+The evolution strategy appears on the screen.
+
+YEHUDA
+We're going to do a drop-in replacement by leveraging our declarative syntax. We have release channels. Release channels are going to let us stage the work. It's definitely going to take more than six weeks again.
+(a beat)
+We have Ember CLI to distribute the compiler change.
+(a beat)
+And it's a drop-in replacement. So we don't really need an RFC.
+(a beat)
+We're going to try really hard not to deprecated things for no reason.
+
+YEHUDA
+We shot for the moon.
+
+CUT TO:
+
+INT. EMBERCONF 2016 #30#
+
+EmberConf 2016. Glimmer 2's benchmarks were great.
+
+YEHUDA
+We made a new Benchmark that stress tested component creation. Every one of those boxes on that Benchmark is a separate component.
+(long pause)
+And it worked.
+(long pause)
+Glimmer one was much slower than React,
+(long pause)
+but glimmer 2 was twice as fast as React.
+
+CUT TO:
+
+More benchmarks from the 2016 keynote.
+
+YEHUDA
+By 2.4, we had the new code base integrated behind the flag.
+(a beat)
+But unlike Glimmer 1, we wanted to commit to a drop-in replacement before we announced anything at Ember Conf.
+(a beat)
+We got Skylight working at least as a proof of concept. But we had a problem.
+(pause)
+If we wanted to commit to compatibility, Ember's test were going to get in the way.
+
+YEHUDA
+They were pretty coupled to the old implementation and that was going to be a ton of work.
+(a beat)
+We had hundreds of tests that were coupled to old implementation details. We needed all of our tests to be abstract enough to test both Glimmer 1 and Glimmer 2 at the same time and that's easier said than done.
+(a beat)
+And it wasn't a very mechanical problem. This required real engineering.
+(a beat)
+But we realized that people always underestimate non-contributors in their communities.
+
+.TESTING GLIMMER 2 #31#
+
+YEHUDA
+At every opportunity, we made it clear that it was _a drop-in replacement__.
+(a beat)
+If an existing app didn't work, we wanted to know.
+(a beat)
+We wanted the release to be a drop-in replacement. No excuses.
+
+YEHUDA
+And things had really firmed up at this point.
+(a beat)
+We had gotten back to the momentum that we were used to in the 1.x series and we didn't want to risk that.
+
+YEHUDA
+So after squashing all the bugs we could find in the alpha, we enabled the feature flag in the Ember 2.9 beta.
+
+YEHUDA
+At this point the system had gotten really rote.
+(a beat)
+Of course we're going to use a release channels.
+(a beat)
+Of course that's going to be how we roll things out.
+
+CUT TO:
+
+Tweets describing good results.
+
+YEHUDA
+The beta has started really well.
+(long pause)
+People reported great success.
+(long pause)
+But then a slow trickle of issues started coming in.
+
+YEHUDA
+They were mostly edge cases like
+(ticking off a list)
+block parameters named component, obscure issues with positional params, using `string.length` in the template, even though it's not that bindable.
+(long pause)
+We could have easily Justified moving forward on grounds that these were edge cases.
+(a beat)
+Honestly, if we hadn't had the 1.13 experience, I think that's probably what we would have done.
+
+YEHUDA
+We would have said: these issues are all about behavior that is not in the public API. It's beyond the scope of SemVer.
+(long pause)
+But as always, it's not just SemVer.
+(a beat)
+We needed to prove that we could do this as a drop in replacement.
+(long pause)
+On the bright side our channels made it really easy to do this mechanically. Instead of leaving the feature on in `features.json` when we branch to stable, we turn it off.
+(a beat)
+Automation handled the rest.
+
+YEHUDA
+And there were pretty high stakes.
+
+YEHUDA
+If we could get this done as a drop-in replacement, it would mean that we could make other major changes in the future inside of a major version. But if we couldn't, it wasn't clear that we would be able to adapt to future changes in the ecosystem fast enough.
+(long pause)
+Major versions just don't come around quickly enough.
+(a beat)
+And we knew that we couldn't just pile on a bunch of breaking changes.
+(a beat)
+We learned that from 1.x.
+
+YEHUDA
+So the stakes were really high.
+(a beat)
+Deferring glimmer to for an extra release was disappointing, but it was the right decision.
+(emphasis)
+We could always make the next train.
+(long pause)
+We needed to find out if we could do this.
+
+YEHUDA
+Once we made the decision the implementation was straightforward.
+(laughing)
+Crank those gears.
+
+YEHUDA
+After 2.9, we burned down the rest of the issues.
+(a beat)
+We released glimmer to with Ember 2.10. Glimmer 2 was in a stable version of Ember.
+(long pause)
+Again, once we made the decision to land the feature in the stable version of Ember, we cranked the gears.
+
+YEHUDA
+I think it's really important to take a step back and think about this.
+(long pause)
+Because we landed glimmer to a complete rewrite of our entire rendering engine _behind a feature flag_ we were able to make fine grained decisions _in real time__ about whether or not we should include it in any particular release.
+
+YEHUDA
+(quickly)
+This allowed us to keep moving. It allowed us to work on other features. It allowed us to reduce disruption.
+(emphasis)
+It really worked.
+
+CUT TO:
+
+.QUEST ISSUES #32#
+
+YEHUDA
+A lot of people in the community would love to help but they just don't know how.
+(a beat)
+So Godfrey took a day and wrote a long and detailed description of the plan for migrating our tests.
+(a beat)
+45 different areas of the test suite needed to be updated. It was time to call the Ember Community to action.
+
+CUT TO:
+
+An army of Tomsters.
+
+YEHUDA
+Let's do this.
+
+YEHUDA
+
+And people did it.
+(long pause)
+A community formed around it.
+(a beat)
+The people who did the first implementations helped the people after that.
+(long pause)
+When all was said and done this became a key way that we think about solving problems going forward: Quest issues.
+(a beat)
+We've used it ever since it works.
+(a beat)
+But here's the thing:
+(long pause)
+The more you commit to writing instructions the better it works.
+(a beat)
+You have to take a leap of faith. You have to spend time writing instructions on the belief that people will show up. And in my experience
+(a beat)
+they always do.
+
+YEHUDA
+After porting, we had a new problem.
+(a beat)
+Porting the tests made them _run_ on Glimmer 1 and Glimmer 2 but sometimes the ported test failed on Glimmer 2.
+(aside)
+Obviously, that was the point.
+(a beat)
+So we had to make them pass.
+(a beat)
+So we repeated the process. We did another Quest issue.
+
+YEHUDA
+We made a big list of failing tests and encourage people to help us fix them.
+(emphasis)
+Again Quest issues worked.
+
+YEHUDA
+Eventually, we got all the tests to pass and it was time to get the community to test out glimmer 2.
+
+.SUCCESSFUL TWEETS #33#
+
+The screen shows tweets describing massive reductions in payload size.
+
+YEHUDA
+Once it landed in 2.10 people were psyched.
+(a beat)
+They saw massive reductions in bundle sizes. And these tweets actually understate how important it is.
+(long pause)
+The old templates were compiled JavaScript. The new templates were JSON.
+(a beat)
+Not only were app bundles half the size, but all of the JavaScript parsing time for all the old templates is gone.
+(emphasis)
+It's a huge win.
+
+YEHUDA
+And I knew that something like this would happen intellectually, but we couldn't actually tell without trying it in real apps.
+(a beat)
+And the fact that it was drop-in meant that tons and tons of real apps could use it.
+(a beat)
+And when they used it, they saw _huge wins_.
+
+YEHUDA
+When you let yourself get seduced by the dark side and give in to temptation to "rip the Band-Aid off", you might be able to _land__ something like Glimmer 2, but nobody will be able to use it.
+
+YEHUDA
+By following the process that we established--by cranking the gears--we were able to land Glimmer 2 in a way that everyone could use.
+
+
+YEHUDA
+We started out by saying that our goal was to let people ship consistently over time without disruption.
+(a beat)
+Without rewrites.
+(a beat)
+And we just faced our most serious challenge.
+
+YEHUDA
+After failing with glimmer 1, our process had allowed us to swap the rendering engine in place.
+(a beat)
+compatibly
+(a beat)
+without disruption
+(a beat)
+and all Ember users were able to use it.
+
+CUT TO:
+
+.PARTY #34#
+
+The army of Tomsters is assembled.
+
+Tomster is speaking.
+
+TOMSTER
+(epic voice)
+Glimmer has landed.
+
+The crowd cheers.
+
+YEHUDA
+We had learned how to make changes as radical as Glimmer 2 without disruption.
+
+YEHUDA
+What that meant is that
+(emphasis)
+we were going to be able to do it again.
+(a beat)
+We had a process for making huge huge changes to the framework without breaking changes while bringing people along.
+(long pause)
+And then we got the 2017 survey results.
+
+CUT TO:
+
+.2017 SURVEY RESULTS #35#
+
+The survey results are much better.
+
+YEHUDA
+
+And there was good news.
+(a beat)
+By staying the course and giving people a good landing place into 2.x people finally did migrate off of 1.13.
+
+YEHUDA
+People who were stuck on 1.12 for performance reasons also got off of 1.13.
+
+YEHUDA
+and here's the best part.
+(long pause)
+We don't see a repetition of the 1.13 problem in 2.9, another huge win.
+
+YEHUDA
+(excitedly)
+The LTS process was working.
+(a beat)
+People were clustered around LTSes.
+(a beat)
+Our improvements were really making a difference.
+
+YEHUDA
+At that year's EmberConf we reflected.
+
+DISSOLVE TO:
+
+INT. EmberConf 2017 - FLASHBACK #36#
+
+YEHUDA
+(at EmberConf)
+I just want to say bluntly.
+(a beat)
+From now on the process that we used for engines, for fastboot, for glimmer is how we're doing it from now on.
+
+YEHUDA
+(rapid-fire)
+We're not going to lean on breaking changes. We're not going to lean on big upfront design. We're going to instead lean on
+(emphasis)
+_small primitives and compatibility_ as our _mantra_ for how we do new feature design.
+
+> FADE OUT
+
+# ACT THREE
+
+> __**ACT THREE**__ <
+
+.THREE POINT OH #37#
+
+YEHUDA
+Eventually, it was becoming clear that we needed to do another major version.
+(a beat)
+Honestly, the biggest impetus is that IE9 didn't have WeakMaps and we really wanted WeakMaps.
+
+YEHUDA
+Reflecting on the 1.13 release we realized that the process of iterating on Ember 2.0 affected the master branch a lot. But you're not supposed to care about releases in the channel model.
+(a beat)
+So something had gone wrong.
+(a beat)
+We couldn't lean on experience from browsers and Rust here because browsers and Rust don't have breaking changes.
+(a beat)
+So there was nothing to copy directly.
+(long pause)
+But the release Channel system is not that complicated.
+(a beat)
+Once you're bought in and you really believe in it, you can work out what you got to do.
+
+YEHUDA
+Just like feature flags let us take a piece of work that takes longer than six weeks, stage it and present it to the user all once,
+(a beat)
+Deprecations let us take a removal, stage it, and present it to the user all at once.
+(long pause)
+So deprecations are kind of like reverse feature flags.
+
+YEHUDA
+For 3.0, we decided that we didn't want to introduce any deprecations at the last minute.
+(a beat)
+So we said: there's going to be a deadline for deprecations. No new deprecations after the deadline.
+
+YEHUDA
+But wait
+(long pause)
+Did I just say deadline?
+(a beat)
+Did I just say code freeze?
+(long pause)
+Actually? No.
+(a beat)
+We can add new deprecations whenever we want after the quote unquote deadline.
+(a beat)
+We just can't _target 3.0_.
+
+YEHUDA
+So if you want to add that deprecation you add.
+(a beat)
+It's totally fine.
+(a beat)
+You're not stopped from adding a deprecation just because the deadline passed.
+(long pause)
+But the _number_ you put next to it is _4.0_. _Not 3.0_.
+
+YEHUDA
+It felt pretty different this time.
+(a beat)
+When we were doing 2.0, we were kind of making it up as we went along.
+(a beat)
+It's not really that surprising that things didn't work as well as we hoped.
+(a beat)
+But when we were working on 3.0,
+(long pause)
+all of our process gave us direction.
+(a beat)
+Almost every problem that we had had a pretty clear answer in our process, so we were pretty confident that it would work.
+
+CUT TO:
+
+.MORE REMOVAL RULES #38#
+
+On the screen is a small tweak to the removal rules.
+
+YEHUDA
+And this adds another change to our process.
+
+The rule change is highlighted:
+
+
+> "A few releases before a major, start targeting deprecations at the _next_ major" <
+
+YEHUDA
+I want to call something out here.
+(long pause)
+This sentence only really makes sense on top of everything else that we did so far.
+(a beat)
+We started out by saying that we wanted to prioritize continuous shipping and minimize disruption, and this is what that looks like.
+(a beat)
+It looks like focusing on this stuff.
+(a beat)
+And it's worth pointing out that all of these changes were in service of shipping things. They were in service of _landing things_.
+(a beat)
+They didn't slow us down.
+(a beat)
+They didn't make it hard for us to land new stuff.
+(emphasis)
+They helped us _land_ _stuff_ **_faster_**.
+
+YEHUDA
+They gave us a rule book to follow whenever we want it to land something.
+
+YEHUDA
+Most of the time
+(thinking)
+almost all the time
+(continuing)
+we can find the way of doing it _faster_ than a major release, _faster_ than a breaking change.
+
+> FADE OUT
+
+.STAGING #39#
+
+YEHUDA
+Now that we've flushed out so much of the system, we had a realization.
+
+YEHUDA
+The key tactic of release channels is staging.
+(long pause)
+By staging I mean taking work that's longer than six weeks and still letting it happen on master without disrupting the release train.
+(long pause)
+That's a pretty big deal. It lets all Dev work happen in one place, but still reliably ship every six weeks.
+
+FADE TO:
+
+.STAGING PROBLEM #40#
+
+The definition of a staging problem:
+
+
+> _**STAGING PROBLEM**_ <
+
+> "A part of the process that forces incremental work to become atomic" <
+
+
+YEHUDA
+So what's a staging problem?
+(long pause)
+A staging problem is a part of the process that forces work that could be done incrementally to become atomic.
+(long pause)
+In this case, the mistake was thinking that features should only become stable when they are also ready to be recommended.
+
+YEHUDA
+But fundamentally, a feature is ready to become stable when the team is ready to make SemVer commitments.
+(long pause)
+By saying that features shouldn't land on stable until we're ready to recommend them, we're blocking features from landing on stable that are ready for several commitments.
+(long pause)
+One major consequence of this is that add-on authors who could take advantage of the feature becoming stable to start doing migration work have to wait until we're ready to recommend the feature _to the whole community_ before they can start.
+(long pause)
+If you think about it, that's kind of a deadlock.
+
+YEHUDA
+Another major consequence is that it prevents people from using an in-progress but stable feature, even if they're willing to accept the confusion and churn.
+
+CUT TO:
+
+> KEY TACTIC <
+
+> **Editions** <
+
+> "A way to stage stable work"<
+
+YEHUDA
+So we normally solve this sort of problem with release channels.
+(a beat)
+A release Channel clearly communicates what level of risk the user is taking.
+(long pause)
+We have a similar problem here.
+
+YEHUDA
+Most people don't want to have to deal with features that aren't ready yet.
+(listing off)
+They might want docs. They might want migration tools. They might care about other features that are part of the same features suite.
+(a beat)
+But that's not the same thing as Canary.
+(a beat)
+So what's the solution to the problem?
+(long pause)
+Basically a new channel: The Edition Channel.
+(long pause)
+This lets us incrementally stabilize features and have a separate mechanism for letting the ecosystem know when it's ready to use.
+
+YEHUDA
+If "a way to stage stable work" sounds like a contradiction in terms, I think that's because we're assuming that _stability_ is definitionally the end of a feature's development process.
+(a beat)
+But as we've been saying all along:
+(emphasis)
+Stability and SemVer are not the whole story.
+(continues)
+Thinking of stability as the end of a feature's development process shortchanges all the other things that go into making a feature ready to use.
+
+CUT TO:
+
+The evolution strategy, with "coherence" not yet checked off.
+
+YEHUDA
+So we have a solution to the coherence problem.
+(a beat)
+Editions.
+(long pause)
+Editions solve the coherence problem by uncoupling stability in the SemVer sense from recommended.
+(long pause)
+We finally have a way of describing everything that goes into our evolution strategy that goes _beyond SemVer_.
+(long pause)
+Now that Ember and Rust did our first edition, we know that they're a big deal.
+
+CUT TO:
+
+Rust 2018 Roadmap:
+
+
+*"The idea of editions is to signify major steps in Rust's evolution, where a collection of new features or idioms, taken as a whole, _changes the experience of using Rust_.*
+
+*"They're a chance, every few years, _to take stock of the work we've delivered in six-week increments_."*
+
+*"_To tell a bigger story_ about where Rust is going."*
+
+*"And to ship the whole stack as a _polished product_."*
+
+YEHUDA
+But when we first announced them and looking at this list, it's hard to put your finger on it.
+(a beat)
+And again, I think the deal is
+(a beat)
+People are so used to thinking about everything in terms of stability and SemVer that it's really hard to think about the fact that things like:
+(slowly listing)
+a coordinated change to idioms, or
+(continues)
+a product worldwide refresh, or
+(slight incredulity)
+a marketing event
+(continues)
+should matter.
+(long pause)
+So the dominant reaction that we got and the dominant reaction that rust got was:
+(a beat)
+What's the point of this?
+
+A very long pause. Yehuda gathers his thoughts.
+
+YEHUDA
+For me the key takeaway is that there's so much about what it takes to build an ecosystem that can support continuous shipping, that can migrate, that can evolve that has _nothing to do with SemVer at all_.
+(emphasis)
+But those things _matter_.
+(long pause)
+There's a difference between applications that can start on Ember 1.0 and land on Ember 3.25 using Typescript--like Skylight--and applications that have to rewrite themselves multiple times over the years to accommodate ecosystem change.
+
+YEHUDA
+It's exactly the set of things that _aren't_ captured by SemVer that make all the difference.
+(long pause)
+And in my mind, that's really the lesson of all this.
+(long pause)
+"SemVer is not an evolution strategy."
+
+> FADE OUT
+
+.AN ASIDE #41#
+
+YEHUDA
+By the way, we ultimately realized that editions are unnecessarily coarse-grained.
+(long pause)
+The problem we're trying to solve is that we needed a way to take a feature and stabilize pieces of it incrementally.
+(a beat)
+We want add-ons to be able to start taking advantage of stability, and we want users who really really need the feature to be able to use it as soon as we can commit to stability.
+
+YEHUDA
+But we also wanted to find an endpoint for a feature that's more polish than what we normally require for landing it in the first place.
+
+CUT TO:
+
+.THE RECOMMENDED STAGE #42#
+
+> A NEW STAGE <
+
+> **Recommended** <
+
+> "The feature is ready to use." <
+
+YEHUDA
+The thing that's great about the recommended stage is that it gives us a clear definition of readiness that can be determined by the framework team and therefore _can be understood by users_.
+
+YEHUDA
+It lets us say: features land on stable when we're ready to commit to SemVer.
+(a beat)
+We have quality control requirements that are necessary before a feature goes into the recommended stage.
+
+CUT TO:
+
+The evolution strategy, with "Editions" highlighted.
+
+YEHUDA
+So let's make one final tweak to our evolution strategy.
+(a beat)
+Instead of editions...
+(long pause)
+The solution to the coherence problem is:
+(a beat)
+the recommended stage.
+
+> FADE OUT
+
+===
+
+.FINALE #43#
+
+YEHUDA
+So what's the whole picture now?
+
+YEHUDA
+First of all, we have stability stages.
+(a beat)
+A feature starts out as an idea and becomes an RFC.
+(pause)
+When it's accepted by the team, it can be implemented behind a feature flag.
+(pause)
+When the team decides that they're ready to make a SemVer commitment to it, they flip the flag.
+(a beat)
+After a six-week shakedown cruise, it makes it into the release channel, andwe call it stable.
+(long pause)
+Stable means the feature has semver guarantees.
+
+YEHUDA
+Then we have a Readiness stage.
+(long pause)
+This has _nothing_ to do with semantic versioning.
+(a beat)
+This has to do with Readiness.
+(long pause)
+A feature makes it into the recommended stage when the team believes that it _meets the quality control requirements_.
+(long pause)
+From this perspective, an edition is just a collection of features that have made it into the recommended stage.
+
+YEHUDA
+Deprecated features have to be replaced with a documented migration path to a _recommended feature_.
+(a beat)
+When we first added this policy, the idea was that deprecated features could always be replaced with something that was ready to use.
+(a beat)
+But we had no way of describing that.
+(long pause)
+With the recommended stage, it's really easy to explain.
+(a beat)
+A deprecated feature can only be replaced with a documented migration path to a _recommended feature_.
+
+YEHUDA
+You may have noticed that I didn't include LTS in the stability stages. That's because LTS is not really a stage at all from the perspective of semantic versioning.
+(a beat)
+An LTS release has exactly the same SemVer commitments as a stable release.
+(long pause)
+The truth is: LTS is there to help apps and the ecosystem synchronize cadence.
+
+YEHUDA
+And finally, our design philosophy.
+(a beat)
+"We prefer a primitives first approach to new feature development wherever possible."
+
+FADE TO:
+
+.BONUS #44#
+
+YEHUDA
+As a bonus now that we have the recommended stage we can crisply define the pit of incoherence.
+
+
+> _**DEFINITIONS**_ <
+> **The Pit of Incoherence** <
+> *"The time between stable and recommended"* <
+
+YEHUDA
+The pit of incoherence iss that point in time last year that motivated editions.
+(long pause)
+From this perspective, the pit of incoherence is just _the time between stable and recommended_.
+
+FADE TO:
+
+
+> _**CORE PRINCIPLE**_ <
+> **Staging** <
+> *"Much much more in RFCs #617 and #649"* <
+
+YEHUDA
+The long and short of it is that staging is now the core way that we understand feature evolution.
+(long pause)
+There are two new RFCs that describe the staging process in detail: RFC #617 for adding features and #649 for deprecating features.
+
+SLOW FADE TO:
+
+.THE END #45#
+
+YEHUDA
+We've finally filled out our evolution toolkit.
+(long pause)
+After years of use, I think we can safely say that it works. We have a process for progress without disruption that works quickly enough to keep up with the pace of ecosystem change.
+(long pause)
+Now, I'm pretty sure we're not done here.
+(a beat)
+But this system works.
+(emphasis)
+It works really well.
+(long pause)
+I'm glad we stuck it out long enough to figure it out.
+
+> FADE TO BLACK
